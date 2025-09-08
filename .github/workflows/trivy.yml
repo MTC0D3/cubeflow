@@ -1,46 +1,49 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+# Workflow ini menggunakan action yang tidak disertifikasi oleh GitHub.
+# Action tersebut disediakan oleh pihak ketiga dan tunduk pada
+# ketentuan layanan, kebijakan privasi, dan dokumentasi dukungan yang terpisah.
 
-name: trivy
+name: trivy # Menetapkan nama workflow sebagai "trivy"
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+on: # Menentukan event pemicu workflow
+  push: # Workflow akan berjalan saat ada push ke branch "main"
+    branches: ["main"]
+  pull_request: # Workflow juga berjalan saat ada pull request ke branch "main"
+    branches: ["main"]
 
-permissions:
-  contents: read
+permissions: # Mengatur izin akses untuk workflow
+  contents: read # Memberikan akses baca ke konten repository
 
-jobs:
-  image-scan:
-    name: Image Scan with Trivy
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
-    runs-on: "ubuntu-20.04"
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+jobs: # Mendefinisikan job dalam workflow
+  image-scan: # Nama job adalah "image-scan"
+    name: Image Scan with Trivy # Nama tampilan job di UI GitHub Actions
+    permissions: # Izin spesifik untuk job ini
+      contents: read # Diperlukan agar actions/checkout bisa mengambil kode
+      security-events: write # Diperlukan agar hasil pemindaian bisa diunggah ke tab Security GitHub
+      actions: read # Diperlukan untuk repo privat agar bisa membaca status run dari action
 
-      - name: Build an image from Dockerfile
+    runs-on: "ubuntu-20.04" # Menentukan runner yang digunakan, yaitu Ubuntu versi 20.04
+
+    steps: # Langkah-langkah yang dijalankan dalam job
+      - name: Checkout code # Langkah pertama: mengambil kode dari repository
+        uses: actions/checkout@v4 # Menggunakan action resmi untuk checkout kode
+
+      - name: Build an image from Dockerfile # Membangun image Docker dari Dockerfile
+
+        # Membuat image dengan tag berdasarkan SHA commit
         run: |
           docker build -t test-app:${{ github.sha }} .
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+      - name: Run Trivy vulnerability scanner # Menjalankan pemindaian kerentanan menggunakan Trivy
+        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe # Menggunakan action Trivy dari commit tertentu
         with:
-          image-ref: 'test-app:${{ github.sha }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH,WARN'
-          exit-code: 1 # Fail the pipeline if vulnerabilities of HIGH severity are found
+          image-ref: "test-app:${{ github.sha }}" # Menentukan image yang akan dipindai
+          format: "sarif" # Format output hasil pemindaian adalah SARIF
+          output: "trivy-results.sarif" # Menyimpan hasil pemindaian ke file ini
+          severity: "CRITICAL,HIGH,WARN" # Hanya memindai kerentanan dengan tingkat keparahan ini
+          exit-code: 1 # Pipeline akan gagal jika ditemukan kerentanan HIGH atau lebih tinggi
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+      - name: Upload Trivy scan results to GitHub Security tab # Mengunggah hasil pemindaian ke tab Security GitHub
+        uses: github/codeql-action/upload-sarif@v3 # Menggunakan action resmi untuk mengunggah file SARIF
+        if: always() # Langkah ini akan dijalankan meskipun langkah sebelumnya gagal
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif" # Menentukan file SARIF yang akan diunggah
