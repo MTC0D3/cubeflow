@@ -34,7 +34,7 @@ jobs: # Mendefinisikan job dalam workflow
           docker build -t test-app:${{ github.sha }} .
 
       - name: Run Trivy vulnerability scanner # Menjalankan pemindaian kerentanan menggunakan Trivy
-        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2 # Menggunakan action Trivy dari commit tertentu
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # Menggunakan action Trivy dari commit tertentu
         with:
           image-ref: "test-app:${{ github.sha }}" # Menentukan image yang akan dipindai
           format: "sarif" # Format output hasil pemindaian adalah SARIF
