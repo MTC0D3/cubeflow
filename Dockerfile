@@ -1,12 +1,12 @@
 # Step 1: Build stage
-FROM golang:1.19-alpine as builder
+FROM golang:1.21-alpine as builder
 
 WORKDIR /app
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cubeflow ./cmd
 
 # Step 2: Runtime stage
-FROM alpine:3.20
+FROM alpine:latest
 
 # Setup Image Timezone
 ENV TZ=Asia/Jakarta
