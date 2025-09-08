@@ -6,7 +6,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cubeflow ./cmd
 
 # Step 2: Runtime stage
-FROM alpine:latest
+FROM alpine:3.18
 
 # Setup Image Timezone
 ENV TZ=Asia/Jakarta
